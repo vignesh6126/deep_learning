@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Activation functions and derivatives
 def relu(x):
@@ -101,7 +102,12 @@ class NeuralNetwork:
                 self.weights[i] -= self.learning_rate * m_t_hat / (np.sqrt(v_t_hat) + self.epsilon)
                 self.biases[i] -= self.learning_rate * gradients_b[i]
 
-    def train(self, X_train, y_train, epochs, batch_size):
+    def train(self, X_train, y_train, X_val, y_val, epochs, batch_size):
+        self.loss_history = []
+        self.accuracy_history = []
+        self.val_loss_history = []
+        self.val_accuracy_history = []
+
         for epoch in range(epochs):
             t = 1  # Adam time step
             for i in range(0, X_train.shape[0], batch_size):
@@ -118,10 +124,31 @@ class NeuralNetwork:
                 self.update_weights(gradients_w, gradients_b, t)
                 t += 1
 
-            # Print loss every epoch
-            y_pred = self.forward(X_train)
-            loss = cross_entropy_loss(y_train, y_pred)
-            print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}")
+            # Compute training loss and accuracy
+            y_pred_train = self.forward(X_train)
+            train_loss = cross_entropy_loss(y_train, y_pred_train)
+            train_predictions = np.argmax(y_pred_train, axis=1)
+            train_true_labels = np.argmax(y_train, axis=1)
+            train_accuracy = np.mean(train_predictions == train_true_labels)
+
+            # Compute validation loss and accuracy
+            y_pred_val = self.forward(X_val)
+            val_loss = cross_entropy_loss(y_val, y_pred_val)
+            val_predictions = np.argmax(y_pred_val, axis=1)
+            val_true_labels = np.argmax(y_val, axis=1)
+            val_accuracy = np.mean(val_predictions == val_true_labels)
+
+            # Store metrics for plotting
+            self.loss_history.append(train_loss)
+            self.accuracy_history.append(train_accuracy)
+            self.val_loss_history.append(val_loss)
+            self.val_accuracy_history.append(val_accuracy)
+
+            # Print metrics for every epoch
+            print(f"Epoch {epoch + 1}/{epochs}")
+            print(f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
+            print(f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.4f}")
+            print("-" * 50)
 
     def predict(self, X):
         y_pred = self.forward(X)
@@ -151,6 +178,11 @@ x_test = (x_test - np.mean(x_test, axis=0)) / np.std(x_test, axis=0)
 y_train = np.eye(10)[y_train]
 y_test = np.eye(10)[y_test]
 
+# Split training data into training and validation sets
+val_size = int(0.2 * x_train.shape[0])  # 20% validation set
+X_val, y_val = x_train[:val_size], y_train[:val_size]
+X_train, y_train = x_train[val_size:], y_train[val_size:]
+
 # Define network architecture and optimizer
 layer_sizes = [784, 512, 256, 10]
 activations = ["relu", "relu", "softmax"]
@@ -158,9 +190,53 @@ optimizer = "adam"  # Choose from "sgd", "momentum", "nesterov", "rmsprop", "ada
 
 # Create and train the network
 nn = NeuralNetwork(layer_sizes, activations, optimizer=optimizer, learning_rate=0.001)
-nn.train(x_train, y_train, epochs=5, batch_size=128)
+nn.train(X_train, y_train, X_val, y_val, epochs=10, batch_size=128)
 
-# Evaluate the network
+# Evaluate the network on the test set
 predictions = nn.predict(x_test)
 accuracy = np.mean(predictions == np.argmax(y_test, axis=1))
 print(f"Test Accuracy: {accuracy:.4f}")
+
+# Plot training and validation loss and accuracy
+def plot_training_history(loss_history, accuracy_history, val_loss_history, val_accuracy_history):
+    plt.figure(figsize=(12, 5))
+
+    # Plot loss
+    plt.subplot(1, 2, 1)
+    plt.plot(loss_history, label='Training Loss')
+    plt.plot(val_loss_history, label='Validation Loss')
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(accuracy_history, label='Training Accuracy')
+    plt.plot(val_accuracy_history, label='Validation Accuracy')
+    plt.title('Training and Validation Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
+
+# Plot training history
+plot_training_history(nn.loss_history, nn.accuracy_history, nn.val_loss_history, nn.val_accuracy_history)
+
+# Plot sample images with true and predicted labels
+def plot_sample_images(x_test, y_test, predictions, num_samples=10):
+    plt.figure(figsize=(12, 6))
+    for i in range(num_samples):
+        plt.subplot(2, 5, i + 1)
+        plt.imshow(x_test[i].reshape(28, 28), cmap='gray')
+        true_label = np.argmax(y_test[i])
+        predicted_label = predictions[i]
+        plt.title(f"True: {true_label}\nPred: {predicted_label}")
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+# Plot sample images
+plot_sample_images(x_test, y_test, predictions)
