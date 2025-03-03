@@ -64,3 +64,6 @@ Test Accuracy: 0.92
 Additionally, sample test images with their true and predicted labels are displayed.
 
 
+![Image](https://github.com/user-attachments/assets/3c748517-6110-47d1-9103-2abbbec7e12f)
+
+
