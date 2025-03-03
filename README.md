@@ -67,3 +67,13 @@ Additionally, sample test images with their true and predicted labels are displa
 ![Image](https://github.com/user-attachments/assets/3c748517-6110-47d1-9103-2abbbec7e12f)
 
 
+**##Observations for different optimizers :**
+
+![Image](https://github.com/user-attachments/assets/7bfc4476-9c44-4ceb-9a50-9c2b0052e882)
+
+**##Observations for different values :**
+
+![Image](https://github.com/user-attachments/assets/7cb2d467-9d7c-4bf1-a26f-df070cac1251)
+
+
+
