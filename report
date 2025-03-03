@@ -1,0 +1,21 @@
+#KMNIST Classification Report
+##Observations:
+###1. Training Performance:
+   - The model was trained for 10 epochs using the Adam optimizer with a learning rate of 0.001.
+   - Training loss steadily decreased, and accuracy improved, indicating effective learning.
+###2. Validation Performance:
+   - Validation accuracy followed a similar trend to training accuracy.
+   - No major signs of overfitting, suggesting the model generalizes well.
+###3. Test Performance:
+   - The model achieved good test accuracy on unseen KMNIST data.
+   - Some misclassifications were observed, likely due to ambiguous or unclear handwriting.
+###4. Visualization Results:
+   - Sample image predictions were mostly correct.
+   - A few errors indicate room for improvement through fine-tuning.
+
+Observations using different Optimizers :
+
+
+Among all the optimizers relu optimizer works good with better accuracy I.e:0.9015
+Conclusion:
+The neural network successfully classified KMNIST characters with good accuracy. The ReLU activation function in hidden layers and Softmax in the output layer performed well. The Adam optimizer ensured stable training. 
